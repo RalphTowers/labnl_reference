@@ -11,9 +11,8 @@
     <div id="container" style="width:800px; height:600px;"></div>
     <script>
       // URLs raw de GitHub para los CSV:
-      // Reemplaza 'tu_usuario', 'tu_repositorio' y 'tu_rama' con tus datos reales.
-      const orgCSVUrl = 'https://raw.githubusercontent.com/tu_usuario/tu_repositorio/tu_rama/labnl_ref_org.csv';
-      const indCSVUrl = 'https://raw.githubusercontent.com/tu_usuario/tu_repositorio/tu_rama/labnl_ref_ind.csv';
+      const orgCSVUrl = 'https://raw.githubusercontent.com/ralphtowers/labnl_reference/main/labnl_ref_org.csv';
+      const indCSVUrl = 'https://raw.githubusercontent.com/ralphtowers/labnl_reference/main/labnl_ref_ind.csv';
 
       // Función que devuelve una promesa con el contenido del CSV parseado
       function parseCSV(url) {
@@ -38,7 +37,7 @@
           const graph = { nodes: [], edges: [] };
 
           // Procesar datos de organizaciones
-          // Suponemos que cada organización tiene por lo menos 'id_org' y 'nombre'
+          // Se asume que cada organización tiene por lo menos 'id_org' y 'nombre'
           orgData.forEach(org => {
             graph.nodes.push({
               id: org['id_org'],
