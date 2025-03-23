@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <title>Mapa de Redes con sigma.js v2 y CSV de GitHub</title>
-    <!-- Incluir graphology, sigma.js v2 y PapaParse -->
+    <!-- Incluir graphology y sigma.js -->
     <script src="https://unpkg.com/graphology@0.21.1/dist/graphology.umd.js"></script>
     <script src="https://unpkg.com/sigma@2.3.0/build/sigma.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -39,7 +39,6 @@
 
           // Procesar datos de organizaciones
           orgData.forEach(org => {
-            // Se asume que 'id_org' es la identificación única de la organización
             graph.addNode(org['id_org'], {
               label: org['nombre'],
               x: Math.random(),
@@ -64,7 +63,7 @@
               contacto: ind['contacto'],
               rrss: ind['rrss']
             });
-            // Si el individuo tiene vínculo válido con una organización, se crea la arista
+            // Crear arista si existe vínculo válido con una organización
             if (ind['vinc_org'] && ind['vinc_org'] !== "N/A") {
               if (graph.hasNode(ind['vinc_org'])) {
                 graph.addEdge(ind['id_ind'], ind['vinc_org'], { label: 'Vinculación' });
@@ -73,8 +72,8 @@
           });
 
           const container = document.getElementById('container');
-          // Inicializar sigma.js con la nueva API
-          const renderer = new sigma.Sigma(graph, container);
+          // Inicializar sigma.js usando el constructor global Sigma (con S mayúscula)
+          const renderer = new Sigma(graph, container);
         })
         .catch(error => {
           console.error("Error al cargar los CSV: ", error);
