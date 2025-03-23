@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Mapa de Redes con sigma.js y CSV de GitHub</title>
+    <!-- Incluir sigma.js y PapaParse -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/2.3.0/sigma.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  </head>
+  <body>
+    <div id="container" style="width:800px; height:600px;"></div>
+    <script>
+      // URLs raw de GitHub para los CSV:
+      // Reemplaza 'tu_usuario', 'tu_repositorio' y 'tu_rama' con tus datos reales.
+      const orgCSVUrl = 'https://raw.githubusercontent.com/tu_usuario/tu_repositorio/tu_rama/labnl_ref_org.csv';
+      const indCSVUrl = 'https://raw.githubusercontent.com/tu_usuario/tu_repositorio/tu_rama/labnl_ref_ind.csv';
+
+      // Función que devuelve una promesa con el contenido del CSV parseado
+      function parseCSV(url) {
+        return new Promise((resolve, reject) => {
+          Papa.parse(url, {
+            download: true,
+            header: true,
+            complete: function(results) {
+              resolve(results.data);
+            },
+            error: function(err) {
+              reject(err);
+            }
+          });
+        });
+      }
+
+      // Cargar ambos CSVs simultáneamente
+      Promise.all([parseCSV(orgCSVUrl), parseCSV(indCSVUrl)])
+        .then(([orgData, indData]) => {
+          // Inicializar el objeto del grafo
+          const graph = { nodes: [], edges: [] };
+
+          // Procesar datos de organizaciones
+          // Suponemos que cada organización tiene por lo menos 'id_org' y 'nombre'
+          orgData.forEach(org => {
+            graph.nodes.push({
+              id: org['id_org'],
+              label: org['nombre'],
+              x: Math.random(),
+              y: Math.random(),
+              size: 2,
+              color: "#00ff00" // Color asignado para organizaciones
+              // Puedes incluir más atributos si existen en tu CSV
+            });
+          });
+
+          // Procesar datos de individuos
+          // Campos: id_ind, nombre, descripción, eje, ubicacion, etiquetas, contacto, rrss, labnl, vinc_org
+          indData.forEach(ind => {
+            // Crear nodo para el individuo
+            graph.nodes.push({
+              id: ind['id_ind'],
+              label: ind['nombre'],
+              x: Math.random(),
+              y: Math.random(),
+              size: 1,
+              color: ind['labnl'] === "TRUE" ? "#ff0000" : "#0000ff",
+              description: ind['descripción'],
+              eje: ind['eje'],
+              ubicacion: ind['ubicacion'],
+              etiquetas: ind['etiquetas'],
+              contacto: ind['contacto'],
+              rrss: ind['rrss']
+            });
+            // Si el individuo está vinculado a una organización válida
+            if (ind['vinc_org'] && ind['vinc_org'] !== "N/A") {
+              graph.edges.push({
+                id: 'edge-' + ind['id_ind'] + '-' + ind['vinc_org'],
+                source: ind['id_ind'],
+                target: ind['vinc_org'],
+                label: 'Vinculación'
+              });
+            }
+          });
+
+          // Inicializar sigma.js con el grafo generado
+          const container = document.getElementById('container');
+          const s = new sigma({
+            graph: graph,
+            container: container,
+            settings: {
+              defaultNodeColor: '#ec5148'
+            }
+          });
+        })
+        .catch(error => {
+          console.error("Error al cargar los CSV: ", error);
+        });
+    </script>
+  </body>
+</html>
